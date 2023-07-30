@@ -3,13 +3,14 @@
 A minimal TUI based task tracker
 
 <a href="./altscreen-toggle/main.go">
-  <img width="750" src="gifs/Navigation.gif" style="zoom: 150%;" />
+  <img src="gifs/Navigation.gif"/>
 </a>
 
-
+<br></br>
+  
 
 <a href="./altscreen-toggle/main.go">
-  <img width="750" src="gifs/Editing.gif" style="zoom:150%;" />
+  <img src="gifs/Editing.gif"/>
 </a>
 
 
