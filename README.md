@@ -2,6 +2,16 @@
 
 A minimal TUI based task tracker
 
+<a href="./altscreen-toggle/main.go">
+  <img width="750" src="gifs/Navigation.gif" style="zoom: 150%;" />
+</a>
+
+
+
+<a href="./altscreen-toggle/main.go">
+  <img width="750" src="gifs/Editing.gif" style="zoom:150%;" />
+</a>
+
 
 
 ## Installation
@@ -63,5 +73,4 @@ go install github.com/BOTbkcd/mayhem@latest
 | <kbd>esc</kbd>        | Return                             |
 | <kbd>?</kbd>          | Toggle Help                        |
 | <kbd>ctrl+c</kbd>     | Quit                               |
-
 
