@@ -12,22 +12,23 @@ import (
 )
 
 type model struct {
-	data               []entities.Stack
-	stackTable         table.Model
-	taskTable          table.Model
-	taskDetails        detailsBox
-	help               helpModel
-	input              inputForm
-	showTasks          bool
-	showDetails        bool
-	showInput          bool
-	showHelp           bool
-	deleteConfirmation tea.Model
-	showDelete         bool
-	navigationKeys     keyMap
-	preInputFocus      string //useful for reverting back when input box is closed
-	firstRender        bool
-	prevState          preserveState
+	data            []entities.Stack
+	stackTable      table.Model
+	taskTable       table.Model
+	taskDetails     detailsBox
+	help            helpModel
+	input           inputForm
+	showTasks       bool
+	showDetails     bool
+	showInput       bool
+	showHelp        bool
+	customInput     tea.Model
+	customInputType string
+	showCustomInput bool
+	navigationKeys  keyMap
+	preInputFocus   string //useful for reverting back when input box is closed
+	firstRender     bool
+	prevState       preserveState
 }
 
 type preserveState struct {
@@ -63,13 +64,14 @@ func (m *model) Init() tea.Cmd {
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	//Transfer control to inputForm's Update method
 	if m.showInput {
+
 		switch msg := msg.(type) {
 
 		case goToMainMsg:
 			m.input = inputForm{}
 			m.showInput = false
 
-			if msg.value == "refresh" {
+			if msg.value.(string) == "refresh" {
 				m.preserveState()
 				m.refreshData()
 			}
@@ -97,62 +99,121 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	//Transfer control to delete confirmation model
-	if m.showDelete {
-		switch msg := msg.(type) {
+	if m.showCustomInput {
+		switch m.customInputType {
+		//Transfer control to delete confirmation model
+		case "delete":
+			switch msg := msg.(type) {
 
-		case goToMainMsg:
-			m.showDelete = false
+			case goToMainMsg:
+				m.showCustomInput = false
 
-			if msg.value == "y" {
-				switch m.preInputFocus {
-				case "stack":
-					stackIndex := m.stackTable.Cursor()
-					currStack := m.data[stackIndex]
+				if msg.value.(string) == "y" {
+					switch m.preInputFocus {
+					case "stack":
+						stackIndex := m.stackTable.Cursor()
+						currStack := m.data[stackIndex]
 
-					if stackIndex == len(m.stackTable.Rows())-1 {
-						m.stackTable.SetCursor(stackIndex - 1)
-					}
-
-					currStack.Delete()
-					m.showTasks = false
-					m.showDetails = false
-					m.refreshData()
-					return m, nil
-
-				case "task":
-					stackIndex := m.stackTable.Cursor()
-					taskIndex := m.taskTable.Cursor()
-
-					var currTask entities.Task
-					if len(m.data[stackIndex].Tasks) > 0 {
-						currTask = m.data[stackIndex].Tasks[taskIndex]
-
-						if currTask.IsRecurring {
-
-						} else {
-							if !currTask.IsFinished {
-								stack := m.data[stackIndex]
-								stack.PendingTaskCount--
-								stack.Save()
-							}
+						if stackIndex == len(m.stackTable.Rows())-1 {
+							m.stackTable.SetCursor(stackIndex - 1)
 						}
-						if taskIndex == len(m.taskTable.Rows())-1 {
-							m.taskTable.SetCursor(taskIndex - 1)
-						}
-						currTask.Delete()
+
+						currStack.Delete()
+						m.showTasks = false
+						m.showDetails = false
 						m.refreshData()
 						return m, nil
+
+					case "task":
+						stackIndex := m.stackTable.Cursor()
+						taskIndex := m.taskTable.Cursor()
+
+						var currTask entities.Task
+						if len(m.data[stackIndex].Tasks) > 0 {
+							currTask = m.data[stackIndex].Tasks[taskIndex]
+
+							if currTask.IsRecurring {
+
+							} else {
+								if !currTask.IsFinished {
+									stack := m.data[stackIndex]
+									stack.PendingTaskCount--
+									stack.Save()
+								}
+							}
+							if taskIndex == len(m.taskTable.Rows())-1 {
+								m.taskTable.SetCursor(taskIndex - 1)
+							}
+							currTask.Delete()
+							m.refreshData()
+							return m, nil
+						}
 					}
 				}
+
+			default:
+				inp, cmd := m.customInput.Update(msg)
+				t, _ := inp.(deleteConfirmation)
+				m.customInput = t
+
+				return m, cmd
 			}
 
-		default:
-			inp, cmd := m.deleteConfirmation.Update(msg)
-			t, _ := inp.(deleteConfirmation)
-			m.deleteConfirmation = t
+		case "move":
+			switch msg := msg.(type) {
 
-			return m, cmd
+			case goToMainMsg:
+				m.showCustomInput = false
+
+				response := msg.value.(keyVal)
+
+				if response.val == "" {
+					return m, nil
+				}
+
+				newStackID := response.key
+
+				stackIndex := m.stackTable.Cursor()
+				taskIndex := m.taskTable.Cursor()
+
+				currStack := m.data[stackIndex]
+				currTask := currStack.Tasks[taskIndex]
+
+				if currTask.StackID == newStackID {
+					return m, nil
+				}
+
+				if currTask.IsRecurring {
+					for _, child := range currTask.FetchAllRecurTasks() {
+						child.StackID = newStackID
+						child.Save()
+					}
+				} else {
+					//Moving recurring tasks wouldn't have any effect on the stack pending task count
+
+					//Decrease pending task count for old stack
+					if !currTask.IsFinished {
+						currStack.PendingTaskCount--
+						currStack.Save()
+					}
+
+					//Increase pending task count for new stack
+					entities.IncPendingCount(newStackID)
+				}
+
+				currTask.StackID = newStackID
+				currTask.Save()
+
+				m.refreshData()
+				return m, nil
+
+			default:
+				inp, cmd := m.customInput.Update(msg)
+				t, _ := inp.(listSelector)
+				m.customInput = t
+
+				return m, cmd
+			}
 		}
 	}
 
@@ -356,7 +417,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					IsRecurring:        true,
 					StartTime:          time.Now(),
 					Deadline:           time.Now(),
-					RecurrenceInterval: 7,
+					RecurrenceInterval: 1,
 				}
 				m.input = initializeInput("task", newTask, 0)
 
@@ -404,8 +465,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, Keys.Delete):
 			if m.stackTable.Focused() {
 				m.preInputFocus = "stack"
-				m.showDelete = true
-				m.deleteConfirmation = initializeDeleteConfirmation()
+				m.showCustomInput = true
+				m.customInputType = "delete"
+				m.customInput = initializeDeleteConfirmation()
 
 				return m, nil
 
@@ -414,8 +476,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				if len(m.data[stackIndex].Tasks) > 0 {
 					m.preInputFocus = "task"
-					m.showDelete = true
-					m.deleteConfirmation = initializeDeleteConfirmation()
+					m.showCustomInput = true
+					m.customInputType = "delete"
+					m.customInput = initializeDeleteConfirmation()
 
 					return m, nil
 				}
@@ -462,10 +525,29 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 
-		// case key.Matches(msg, Keys.CalendarToggle):
-		// 	m.isCalenderView = !m.isCalenderView
-		// 	return m, nil
+		case key.Matches(msg, Keys.Move):
+			if m.taskTable.Focused() {
+				stackIndex := m.stackTable.Cursor()
 
+				if len(m.data[stackIndex].Tasks) > 0 {
+					m.preInputFocus = "task"
+					m.showCustomInput = true
+					m.customInputType = "move"
+
+					opts := []keyVal{}
+					for _, stack := range m.data {
+						entry := keyVal{
+							key: stack.ID,
+							val: stack.Title,
+						}
+						opts = append(opts, entry)
+					}
+					m.customInput = initializeListSelector(opts, "", goToMainWithVal)
+
+					m.help = initializeHelp(listSelectorKeys)
+					return m, nil
+				}
+			}
 		case key.Matches(msg, Keys.Help):
 			m.showHelp = !m.showHelp
 			return m, nil
@@ -539,8 +621,11 @@ func (m *model) View() string {
 
 	tablesView := lipgloss.JoinHorizontal(lipgloss.Center, viewArr...)
 
-	if m.showDelete {
-		return lipgloss.JoinVertical(lipgloss.Left, tablesView, m.deleteConfirmation.View())
+	if m.showCustomInput {
+		tablesView = lipgloss.JoinVertical(lipgloss.Left,
+			tablesView,
+			getInputFormStyle().Render(m.customInput.View()),
+		)
 	}
 
 	if m.showInput {
@@ -553,7 +638,7 @@ func (m *model) View() string {
 	}
 
 	if m.showHelp {
-		if !m.showInput {
+		if !m.showInput && !m.showCustomInput {
 			navigationHelp := initializeHelp(m.navigationKeys)
 			return lipgloss.JoinVertical(lipgloss.Left, tablesView, m.help.View(), navigationHelp.View())
 		}

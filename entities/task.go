@@ -47,3 +47,8 @@ func (t Task) LatestRecurTask() (RecurTask, int64) {
 func (t Task) RemoveFutureRecurTasks() {
 	DB.Unscoped().Where("deadline >=  DATE('now', 'start of day') AND task_id = ?", t.ID).Delete(&RecurTask{})
 }
+
+func (t Task) FetchAllRecurTasks() []RecurTask {
+	DB.Preload("RecurChildren").Find(&t)
+	return t.RecurChildren
+}

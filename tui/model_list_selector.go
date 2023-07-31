@@ -1,20 +1,24 @@
 package tui
 
 import (
-	"strings"
-
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-type selectModel struct {
-	options    []string
+type listSelector struct {
+	options    []keyVal
 	focusIndex int
 	maxIndex   int
+	responder  func(interface{}) tea.Cmd
 }
 
-var selectOptionKeys = keyMap{
+type keyVal struct {
+	key uint
+	val string
+}
+
+var listSelectorKeys = keyMap{
 	Up: key.NewBinding(
 		key.WithKeys("up", "k"),
 		key.WithHelp("'↑/k'", "up"),
@@ -33,42 +37,53 @@ var selectOptionKeys = keyMap{
 	),
 }
 
-func (m selectModel) Init() tea.Cmd {
+func (m listSelector) Init() tea.Cmd {
 	return nil
 }
 
-func initialSelectModel(options []string, selectedVal string) tea.Model {
+func initializeListSelector(options []keyVal, selectedVal string, responder func(interface{}) tea.Cmd) tea.Model {
 	// Takes care of default case where index should be 0
 	var selectedIndex int
 
-	for i, val := range options {
-		if val == selectedVal {
+	for i, item := range options {
+		if item.val == selectedVal {
 			selectedIndex = i
 			break
 		}
 	}
 
-	m := selectModel{focusIndex: selectedIndex, maxIndex: len(options) - 1, options: options}
+	m := listSelector{
+		focusIndex: selectedIndex,
+		maxIndex:   len(options) - 1,
+		options:    options,
+		responder:  responder,
+	}
 
 	return m
 }
 
-func (m selectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m listSelector) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch strings.ToLower(msg.String()) {
-		case "q", "ctrl+c":
+		switch {
+		case key.Matches(msg, Keys.Return):
+			return m, goToMainWithVal(keyVal{})
+
+		case key.Matches(msg, Keys.Quit):
 			return m, tea.Quit
-		case "enter":
-			return m, goToFormWithVal(m.options[m.focusIndex])
-		case "up", "k":
+
+		case key.Matches(msg, Keys.Enter):
+			return m, m.responder(m.options[m.focusIndex])
+
+		case key.Matches(msg, Keys.Up):
 			if m.focusIndex > 0 {
 				m.focusIndex--
 			} else {
 				m.focusIndex = m.maxIndex
 				return m, nil
 			}
-		case "down", "j":
+
+		case key.Matches(msg, Keys.Down):
 			if m.focusIndex < m.maxIndex {
 				m.focusIndex++
 			} else {
@@ -76,20 +91,21 @@ func (m selectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 		}
+
 	}
 	return m, nil
 }
 
-func (m selectModel) View() string {
+func (m listSelector) View() string {
 	var res []string
 
-	for i, val := range m.options {
+	for i, item := range m.options {
 		var value string
 
 		if i == m.focusIndex {
-			value = lipgloss.NewStyle().Foreground(inputFormColor).Bold(true).Render("» " + val)
+			value = lipgloss.NewStyle().Foreground(inputFormColor).Bold(true).Render("» " + item.val)
 		} else {
-			value = lipgloss.NewStyle().Foreground(inputFormColor).Bold(true).Render("  " + val)
+			value = lipgloss.NewStyle().Foreground(inputFormColor).Bold(true).Render("  " + item.val)
 		}
 
 		res = append(res, value)

@@ -49,6 +49,10 @@ var taskKeys = keyMap{
 		key.WithKeys("x"),
 		key.WithHelp("'x'", "delete 🗑"),
 	),
+	Move: key.NewBinding(
+		key.WithKeys("m"),
+		key.WithHelp("'m'", "move 📤"),
+	),
 }
 
 var tableNavigationKeys = keyMap{

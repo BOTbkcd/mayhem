@@ -3,14 +3,16 @@ package tui
 import tea "github.com/charmbracelet/bubbletea"
 
 type goToMainMsg struct {
-	value string
+	value interface{}
 }
 
 func goToMainCmd() tea.Msg {
-	return goToMainMsg{}
+	return goToMainMsg{
+		value: "",
+	}
 }
 
-func goToMainWithVal(value string) tea.Cmd {
+func goToMainWithVal(value interface{}) tea.Cmd {
 	return func() tea.Msg {
 		return goToMainMsg{value: value}
 	}

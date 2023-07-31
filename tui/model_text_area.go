@@ -30,7 +30,7 @@ func initializeTextArea(value string) tea.Model {
 	t := textarea.New()
 	t.SetValue(value)
 	t.SetWidth(getInputFormStyle().GetWidth() - 2)
-	t.SetHeight(5)
+	t.SetHeight(4)
 	t.CharLimit = 500
 	t.Placeholder = "Enter task description"
 	t.ShowLineNumbers = false
