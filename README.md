@@ -18,7 +18,7 @@ A minimal TUI based task tracker
 ## Installation
 
 ```
-go install github.com/BOTbkcd/mayhem@latest
+go install github.com/BOTbkcd/mayhem@v1.1.0
 ```
 
 - SQLite is a dependency for this tool, make sure it is installed beforehand (It is fairly ubiquitous & should already be present on your system).
