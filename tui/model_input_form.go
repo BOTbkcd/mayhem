@@ -324,7 +324,7 @@ func spawnRecurTasks(task entities.Task, oldDeadline time.Time) {
 	t := time.Now()
 
 	if t.Before(oldDeadline) {
-		startTime = r.Deadline
+		startTime = time.Date(r.Deadline.Year(), r.Deadline.Month(), r.Deadline.Day(), task.StartTime.Hour(), task.StartTime.Minute(), 0, 0, task.StartTime.Location())
 	} else {
 		startTime = time.Date(t.Year(), t.Month(), t.Day(), task.StartTime.Hour(), task.StartTime.Minute(), 0, 0, task.StartTime.Location())
 	}
