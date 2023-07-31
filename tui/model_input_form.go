@@ -67,7 +67,7 @@ var (
 		3: {
 			name:     "Priority",
 			prompt:   "Task Priority",
-			helpKeys: selectOptionKeys,
+			helpKeys: listSelectorKeys,
 		},
 		4: {
 			name:     "Deadline",
@@ -143,7 +143,12 @@ func initializeInput(selectedTable string, data entities.Entity, fieldIndex int)
 		case 2:
 			targetField.model = initializeStepsEditor(task.Steps, task.ID)
 		case 3:
-			targetField.model = initialSelectModel([]string{"0", "1", "2"}, strconv.Itoa(task.Priority))
+			opts := []keyVal{
+				{val: "0"},
+				{val: "1"},
+				{val: "2"},
+			}
+			targetField.model = initializeListSelector(opts, strconv.Itoa(task.Priority), goToFormWithVal)
 		case 4:
 			if task.Deadline.IsZero() {
 				currDate := time.Now().String()[0:10]
@@ -226,7 +231,7 @@ func (m inputForm) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// We save tasks independently (in steps-editor itself) & not as task associations
 				return m, goToMainWithVal("refresh")
 			case 3:
-				task.Priority, _ = strconv.Atoi(selectedValue.(string))
+				task.Priority, _ = strconv.Atoi(selectedValue.(keyVal).val)
 			case 4:
 				oldDeadline := task.Deadline
 				task.Deadline = selectedValue.(time.Time)

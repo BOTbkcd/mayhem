@@ -9,10 +9,13 @@ import (
 
 // textinput.Model doesn't implement tea.Model interface
 type deleteConfirmation struct {
+	customInputType string
 }
 
 func initializeDeleteConfirmation() tea.Model {
-	m := deleteConfirmation{}
+	m := deleteConfirmation{
+		customInputType: "delete",
+	}
 
 	return m
 }
@@ -46,5 +49,5 @@ func (m deleteConfirmation) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m deleteConfirmation) View() string {
 	// Can't just render textinput.Value(), otherwise cursor blinking wouldn't work
-	return lipgloss.NewStyle().Foreground(highlightedBackgroundColor).PaddingTop(1).Render("Do you wish to proceed with deletion? (y/n): ")
+	return lipgloss.NewStyle().Foreground(highlightedBackgroundColor).Padding(1, 0).Render("Do you wish to proceed with deletion? (y/n): ")
 }
