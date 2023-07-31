@@ -108,6 +108,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case goToMainMsg:
 				m.showCustomInput = false
 
+				if m.preInputFocus == "stack" {
+					m.stackTable.Focus()
+					m.help = initializeHelp(stackKeys)
+				} else if m.preInputFocus == "task" {
+					m.taskTable.Focus()
+					m.help = initializeHelp(taskKeys)
+				}
+
 				if msg.value.(string) == "y" {
 					switch m.preInputFocus {
 					case "stack":
@@ -164,6 +172,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case goToMainMsg:
 				m.showCustomInput = false
+				m.taskTable.Focus()
+				m.help = initializeHelp(taskKeys)
 
 				response := msg.value.(keyVal)
 
@@ -468,6 +478,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.showCustomInput = true
 				m.customInputType = "delete"
 				m.customInput = initializeDeleteConfirmation()
+				m.stackTable.Blur()
+				m.help = helpModel{}
 
 				return m, nil
 
@@ -479,6 +491,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.showCustomInput = true
 					m.customInputType = "delete"
 					m.customInput = initializeDeleteConfirmation()
+					m.taskTable.Blur()
+					m.help = helpModel{}
 
 					return m, nil
 				}
@@ -533,6 +547,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.preInputFocus = "task"
 					m.showCustomInput = true
 					m.customInputType = "move"
+					m.taskTable.Blur()
 
 					opts := []keyVal{}
 					for _, stack := range m.data {

@@ -51,7 +51,7 @@ var taskKeys = keyMap{
 	),
 	Move: key.NewBinding(
 		key.WithKeys("m"),
-		key.WithHelp("'m'", "move 📤"),
+		key.WithHelp("'m'", "change stack 📤"),
 	),
 }
 
