@@ -23,7 +23,6 @@ go install github.com/BOTbkcd/mayhem@latest
 
 - SQLite is a dependency for this tool, make sure it is installed beforehand (It is fairly ubiquitous & should already be present on your system).
 
-- Additionally you can check out the binaries for the [latest release](https://github.com/BOTbkcd/mayhem/releases) (as of now only linux-amd64 & darwin-amd64 binaries are present)
 
 
 
