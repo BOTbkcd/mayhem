@@ -71,6 +71,7 @@ go install github.com/BOTbkcd/mayhem@latest
 | <kbd>e</kbd>          | Edit                               |
 | <kbd>tab</kbd>        | Toggle task/step completion status |
 | <kbd>esc</kbd>        | Return                             |
+| <kbd>m</kbd>          | Move task to new stack             |
 | <kbd>?</kbd>          | Toggle Help                        |
 | <kbd>ctrl+c</kbd>     | Quit                               |
 
