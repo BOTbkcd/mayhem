@@ -214,6 +214,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				currTask.StackID = newStackID
 				currTask.Save()
 
+				if taskIndex == len(m.taskTable.Rows())-1 {
+					m.taskTable.SetCursor(taskIndex - 1)
+				}
 				m.refreshData()
 				return m, nil
 
