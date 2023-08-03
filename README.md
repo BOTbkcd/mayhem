@@ -7,7 +7,7 @@ A minimal TUI based task tracker
 </a>
 
 <br></br>
-  
+
 
 <a href="./altscreen-toggle/main.go">
   <img src="gifs/Editing.gif"/>
@@ -17,11 +17,14 @@ A minimal TUI based task tracker
 
 ## Installation
 
+- You can download a pre-compiled binary for your system for the [latest release](https://github.com/BOTbkcd/mayhem/releases)
+- Or if you have go installed on your system you can use the following command to install this package: 
+
 ```
 go install github.com/BOTbkcd/mayhem@latest
 ```
 
-- SQLite is a dependency for this tool, make sure it is installed beforehand (It is fairly ubiquitous & should already be present on your system).
+*SQLite is a dependency for this tool, make sure it is installed beforehand (it is fairly ubiquitous & should already be present on your system).*
 
 
 
@@ -40,6 +43,8 @@ go install github.com/BOTbkcd/mayhem@latest
   - A task can be broken down into associated *<u>steps</u>* 
     - Individual steps can be marked as finished as progress is made
 
+  - Task can be moved to a new stack after creation without any loss of data
+    
   - Recurring tasks:
     - A recurring task will begin from the specified start time & repeat after the recurrence interval until the deadline is reached
     - A recurring task can only be temporarily marked as finished. It will resurface after the recurrence interval.
