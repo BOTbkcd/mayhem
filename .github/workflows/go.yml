@@ -1,0 +1,32 @@
+name: Generate binary assets
+
+on:
+  release:
+    types: [published]
+
+env:
+  CGO_ENABLED: 0
+
+permissions:
+  contents: write
+
+jobs:
+  releases-matrix:
+    name: Release binaries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, darwin, windows]
+        goarch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: wangyoucao577/go-release-action@v1.38
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          goversion: "1.20"
+          asset_name: mayhem-${{ matrix.goos }}-${{ matrix.goarch }}
+          project_path: "."
+          extra_files: LICENSE README.md
+          retry: 3
