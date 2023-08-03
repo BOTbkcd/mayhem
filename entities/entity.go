@@ -1,7 +1,8 @@
 package entities
 
 import (
-	"gorm.io/driver/sqlite"
+	//Using pure-go implementation of GORM driver to avoid CGO issues during cross-compilation
+	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
