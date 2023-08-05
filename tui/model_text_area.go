@@ -6,7 +6,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// textinput.Model doesn't implement tea.Model interface
+// textarea.Model doesn't implement tea.Model interface
 type textArea struct {
 	input textarea.Model
 }
