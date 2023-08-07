@@ -91,6 +91,7 @@ var tableNavigationKeys = keyMap{
 }
 
 var taskFinishStatus = map[uint]bool{}
+var recurDeadlines = map[uint]time.Time{}
 
 func stackColumns() []table.Column {
 	return []table.Column{
@@ -126,7 +127,7 @@ func stackRows(stacks []entities.Stack) []table.Row {
 func taskRows(tasks []entities.Task) []table.Row {
 	rows := make([]table.Row, len(tasks))
 
-	recurDeadlines := make(map[uint]time.Time)
+	// We perform this step earlier since we need the deadline & finish status data before sorting
 	for _, val := range tasks {
 		if val.IsRecurring {
 			r, count := val.LatestRecurTask()
@@ -187,22 +188,36 @@ func sortTasks(t *[]entities.Task) {
 	//Sort by finish status, then deadline, then priority, then title
 	sort.Slice(*t, func(i, j int) bool {
 		if taskFinishStatus[(*t)[i].ID] == taskFinishStatus[(*t)[j].ID] {
-			if (*t)[i].Deadline.Equal((*t)[j].Deadline) {
+			var deadline_i time.Time
+			if (*t)[i].IsRecurring {
+				deadline_i = recurDeadlines[(*t)[i].ID]
+			} else {
+				deadline_i = (*t)[i].Deadline
+			}
+
+			var deadline_j time.Time
+			if (*t)[j].IsRecurring {
+				deadline_j = recurDeadlines[(*t)[j].ID]
+			} else {
+				deadline_j = (*t)[j].Deadline
+			}
+
+			if deadline_i.Equal(deadline_j) {
 				if (*t)[i].Priority == (*t)[j].Priority {
 					return strings.ToLower((*t)[i].Title) < strings.ToLower((*t)[j].Title)
 				}
 				return (*t)[i].Priority > (*t)[j].Priority
 			}
 
-			if (*t)[i].Deadline.IsZero() {
+			if deadline_i.IsZero() {
 				return false
 			}
 
-			if (*t)[j].Deadline.IsZero() {
+			if deadline_j.IsZero() {
 				return true
 			}
 
-			return (*t)[i].Deadline.Before((*t)[j].Deadline)
+			return deadline_i.Before(deadline_j)
 		} else {
 			return !taskFinishStatus[(*t)[i].ID]
 		}
