@@ -78,5 +78,5 @@ go install github.com/BOTbkcd/mayhem@latest
 | <kbd>esc</kbd>        | Return                             |
 | <kbd>m</kbd>          | Move task to new stack             |
 | <kbd>?</kbd>          | Toggle Help                        |
-| <kbd>q</kbd>          | Quit                               |
+| <kbd>q</kbd> / <kbd>ctrl+c</kbd>          | Quit                               |
 
