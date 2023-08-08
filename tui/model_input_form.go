@@ -189,7 +189,7 @@ func (m inputForm) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, goToMainCmd
 			}
 
-		case key.Matches(msg, Keys.Quit):
+		case key.Matches(msg, Keys.Exit):
 			return m, tea.Quit
 		}
 

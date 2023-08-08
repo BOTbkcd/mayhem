@@ -85,8 +85,8 @@ var tableNavigationKeys = keyMap{
 		key.WithHelp("'?'", "toggle help"),
 	),
 	Quit: key.NewBinding(
-		key.WithKeys("q", "ctrl+c"),
-		key.WithHelp("'ctrl+c'", "quit"),
+		key.WithKeys("q"),
+		key.WithHelp("'q'", "quit"),
 	),
 }
 
@@ -112,7 +112,7 @@ func taskColumns() []table.Column {
 func stackRows(stacks []entities.Stack) []table.Row {
 	rows := make([]table.Row, len(stacks))
 
-	sortStacks(&stacks)
+	sortStacks(stacks)
 
 	for i, val := range stacks {
 		row := []string{
@@ -140,7 +140,7 @@ func taskRows(tasks []entities.Task) []table.Row {
 		}
 	}
 
-	sortTasks(&tasks)
+	sortTasks(tasks)
 
 	var prefix string
 	var deadline string
@@ -177,36 +177,36 @@ func taskRows(tasks []entities.Task) []table.Row {
 	return rows
 }
 
-func sortStacks(s *[]entities.Stack) {
+func sortStacks(s []entities.Stack) {
 	//Alphabetically sort by stack title
-	sort.Slice(*s, func(i, j int) bool {
-		return strings.ToLower((*s)[i].Title) < strings.ToLower((*s)[j].Title)
+	sort.Slice(s, func(i, j int) bool {
+		return strings.ToLower(s[i].Title) < strings.ToLower(s[j].Title)
 	})
 }
 
-func sortTasks(t *[]entities.Task) {
+func sortTasks(t []entities.Task) {
 	//Sort by finish status, then deadline, then priority, then title
-	sort.Slice(*t, func(i, j int) bool {
-		if taskFinishStatus[(*t)[i].ID] == taskFinishStatus[(*t)[j].ID] {
+	sort.Slice(t, func(i, j int) bool {
+		if taskFinishStatus[t[i].ID] == taskFinishStatus[t[j].ID] {
 			var deadline_i time.Time
-			if (*t)[i].IsRecurring {
-				deadline_i = recurDeadlines[(*t)[i].ID]
+			if t[i].IsRecurring {
+				deadline_i = recurDeadlines[t[i].ID]
 			} else {
-				deadline_i = (*t)[i].Deadline
+				deadline_i = t[i].Deadline
 			}
 
 			var deadline_j time.Time
-			if (*t)[j].IsRecurring {
-				deadline_j = recurDeadlines[(*t)[j].ID]
+			if t[j].IsRecurring {
+				deadline_j = recurDeadlines[t[j].ID]
 			} else {
-				deadline_j = (*t)[j].Deadline
+				deadline_j = t[j].Deadline
 			}
 
 			if deadline_i.Equal(deadline_j) {
-				if (*t)[i].Priority == (*t)[j].Priority {
-					return strings.ToLower((*t)[i].Title) < strings.ToLower((*t)[j].Title)
+				if t[i].Priority == t[j].Priority {
+					return strings.ToLower(t[i].Title) < strings.ToLower(t[j].Title)
 				}
-				return (*t)[i].Priority > (*t)[j].Priority
+				return t[i].Priority > t[j].Priority
 			}
 
 			if deadline_i.IsZero() {
@@ -219,7 +219,7 @@ func sortTasks(t *[]entities.Task) {
 
 			return deadline_i.Before(deadline_j)
 		} else {
-			return !taskFinishStatus[(*t)[i].ID]
+			return !taskFinishStatus[t[i].ID]
 		}
 	})
 }
