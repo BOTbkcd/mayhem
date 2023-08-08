@@ -22,6 +22,7 @@ type keyMap struct {
 	Return         key.Binding
 	Help           key.Binding
 	Quit           key.Binding
+	Exit           key.Binding
 }
 
 var Keys = keyMap{
@@ -94,8 +95,12 @@ var Keys = keyMap{
 		key.WithHelp("'?'", "toggle help"),
 	),
 	Quit: key.NewBinding(
+		key.WithKeys("q"),
+		key.WithHelp("'q'", "quit"),
+	),
+	Exit: key.NewBinding(
 		key.WithKeys("ctrl+c"),
-		key.WithHelp("'ctrl+c'", "quit"),
+		key.WithHelp("'ctrl+c'", "exit"),
 	),
 }
 

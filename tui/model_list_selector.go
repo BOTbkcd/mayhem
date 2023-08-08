@@ -69,7 +69,7 @@ func (m listSelector) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, Keys.Return):
 			return m, goToMainWithVal(keyVal{})
 
-		case key.Matches(msg, Keys.Quit):
+		case key.Matches(msg, Keys.Quit, Keys.Exit):
 			return m, tea.Quit
 
 		case key.Matches(msg, Keys.Enter):

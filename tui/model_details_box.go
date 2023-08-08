@@ -71,8 +71,8 @@ var detailsNavigationKeys = keyMap{
 		key.WithHelp("'?'", "toggle help"),
 	),
 	Quit: key.NewBinding(
-		key.WithKeys("ctrl+c"),
-		key.WithHelp("'ctrl+c'", "quit"),
+		key.WithKeys("q"),
+		key.WithHelp("'q'", "quit"),
 	),
 }
 

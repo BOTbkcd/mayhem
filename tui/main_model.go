@@ -570,7 +570,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.showHelp = !m.showHelp
 			return m, nil
 
-		case key.Matches(msg, Keys.Quit):
+		case key.Matches(msg, Keys.Quit, Keys.Exit):
 			return m, tea.Quit
 		}
 
