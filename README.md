@@ -17,7 +17,7 @@ A minimal TUI based task tracker
 
 ## Installation
 
-- You can download a pre-compiled binary for your system for the [latest release](https://github.com/BOTbkcd/mayhem/releases)
+- You can download a pre-compiled binary for your system for the [latest release](https://github.com/BOTbkcd/mayhem/releases/latest)
 - Or if you have go installed on your system you can use the following command to install this package: 
 
 ```
