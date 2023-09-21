@@ -118,7 +118,7 @@ func initializeInput(selectedTable string, data entities.Entity, fieldIndex int)
 
 		switch fieldIndex {
 		case 0:
-			targetField.model = initializeTextInput(stack.Title, "", 20, goToFormWithVal)
+			targetField.model = initializeTextInput(stack.Title, "", 20, 0, goToFormWithVal)
 		}
 
 		m.helpKeys = targetField.helpKeys
@@ -137,7 +137,7 @@ func initializeInput(selectedTable string, data entities.Entity, fieldIndex int)
 
 		switch fieldIndex {
 		case 0:
-			targetField.model = initializeTextInput(task.Title, "", 60, goToFormWithVal)
+			targetField.model = initializeTextInput(task.Title, "", 60, 0, goToFormWithVal)
 		case 1:
 			targetField.model = initializeTextArea(task.Description)
 		case 2:
@@ -294,18 +294,6 @@ func (m inputForm) View() string {
 
 	b.WriteString(m.fieldMap[m.focusIndex].model.View())
 	b.WriteRune('\n')
-
-	// blurredButton := fmt.Sprintf("[ %s ]", blurredStyle.Render("Submit"))
-	// focusedButton := focusedStyle.Copy().Render("[ Submit ]")
-
-	// var button *string
-	// if m.focusIndex == len(m.fieldMap) {
-	// 	button = &focusedButton
-	// } else {
-	// 	button = &blurredButton
-	// }
-
-	// fmt.Fprintf(&b, "\n\n%s\n\n", *button)
 
 	return b.String()
 }

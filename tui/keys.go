@@ -20,6 +20,7 @@ type keyMap struct {
 	ReverseToggle  key.Binding
 	Delete         key.Binding
 	Return         key.Binding
+	Sync           key.Binding
 	Help           key.Binding
 	Quit           key.Binding
 	Exit           key.Binding
@@ -90,6 +91,10 @@ var Keys = keyMap{
 		key.WithKeys("esc"),
 		key.WithHelp("'esc'", "return"),
 	),
+	Sync: key.NewBinding(
+		key.WithKeys("s"),
+		key.WithHelp("'s'", "sync"),
+	),
 	Help: key.NewBinding(
 		key.WithKeys("?"),
 		key.WithHelp("'?'", "toggle help"),
@@ -125,6 +130,7 @@ func (k keyMap) ShortHelp() []key.Binding {
 		k.GotoBottom,
 		k.Left,
 		k.Right,
+		k.Sync,
 		k.Help,
 		k.Quit,
 	}

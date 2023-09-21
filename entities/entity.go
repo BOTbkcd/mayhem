@@ -31,7 +31,7 @@ func InitializeDB() {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&Stack{}, &Task{}, &Step{}, &RecurTask{})
+	db.AutoMigrate(&Stack{}, &Task{}, &Step{}, &RecurTask{}, &SyncInfo{})
 
 	DB = db
 }

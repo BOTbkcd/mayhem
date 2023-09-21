@@ -12,23 +12,26 @@ import (
 )
 
 type model struct {
-	data            []entities.Stack
-	stackTable      table.Model
-	taskTable       table.Model
-	taskDetails     detailsBox
-	help            helpModel
-	input           inputForm
-	showTasks       bool
-	showDetails     bool
-	showInput       bool
-	showHelp        bool
-	customInput     tea.Model
-	customInputType string
-	showCustomInput bool
-	navigationKeys  keyMap
-	preInputFocus   string //useful for reverting back when input box is closed
-	firstRender     bool
-	prevState       preserveState
+	data               []entities.Stack
+	stackTable         table.Model
+	taskTable          table.Model
+	taskDetails        detailsBox
+	help               helpModel
+	input              inputForm
+	showTasks          bool
+	showDetails        bool
+	showInput          bool
+	showHelp           bool
+	customInput        tea.Model
+	customInputType    string
+	showCustomInput    bool
+	alternateInput     tea.Model
+	alternateInputType string
+	showAlternateView  bool
+	navigationKeys     keyMap
+	preInputFocus      string //useful for reverting back when input box is closed
+	firstRender        bool
+	prevState          preserveState
 }
 
 type preserveState struct {
@@ -38,7 +41,7 @@ type preserveState struct {
 }
 
 func InitializeMainModel() *model {
-	stacks, _ := entities.FetchAllStacks()
+	stacks := entities.FetchAllStacks()
 
 	m := &model{
 		stackTable:     buildTable(stackColumns(), "stack"),
@@ -224,6 +227,26 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				inp, cmd := m.customInput.Update(msg)
 				t, _ := inp.(listSelector)
 				m.customInput = t
+
+				return m, cmd
+			}
+		}
+	}
+
+	if m.showAlternateView {
+		switch m.alternateInputType {
+		case "sync":
+			switch msg := msg.(type) {
+
+			case goToMainMsg:
+				m.showAlternateView = false
+				m.help = initializeHelp(stackKeys)
+				return m, nil
+
+			default:
+				inp, cmd := m.alternateInput.Update(msg)
+				t, _ := inp.(trelloSync)
+				m.alternateInput = t
 
 				return m, cmd
 			}
@@ -473,6 +496,15 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			return m, nil
 
+		case key.Matches(msg, Keys.Sync):
+			if m.stackTable.Focused() {
+				m.showAlternateView = true
+				m.alternateInputType = "sync"
+				m.alternateInput = initializeTrelloSync(entities.FetchSyncInfo()[0])
+				m.help = initializeHelp(trelloSyncKeys)
+			}
+			return m, nil
+
 		//Actual delete operation happens in showDelete conditional at the start of Update() method
 		//Here we just trigger the delete confirmation step
 		case key.Matches(msg, Keys.Delete):
@@ -621,9 +653,10 @@ func (m *model) View() string {
 		detailView = unselectedBoxStyle.Render(m.taskDetails.View())
 	}
 
-	// if m.isCalenderView {
-	// 	return lipgloss.PlaceHorizontal(screenWidth, lipgloss.Left, initializeCalender(time.Now()).View())
-	// }
+	if m.showAlternateView {
+		return lipgloss.PlaceHorizontal(screenWidth, lipgloss.Center, m.alternateInput.View())
+	}
+
 	viewArr := []string{stackView}
 	if m.showTasks {
 		viewArr = append(viewArr, taskView)
@@ -699,7 +732,7 @@ func (m model) taskFooter() string {
 
 // Pull new data from database
 func (m *model) refreshData() {
-	stacks, _ := entities.FetchAllStacks()
+	stacks := entities.FetchAllStacks()
 	m.data = stacks
 	m.updateSelectionData("stacks")
 }

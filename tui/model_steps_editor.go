@@ -123,7 +123,7 @@ func (m stepsEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.focusIndex++
 			}
 			m.isEditMode = true
-			m.textInput = initializeTextInput("", newStepPlaceholder, 60, goToStepsWithVal)
+			m.textInput = initializeTextInput("", newStepPlaceholder, 60, 0, goToStepsWithVal)
 
 		case key.Matches(msg, Keys.Delete):
 			if len(m.steps) > 0 {
@@ -147,7 +147,7 @@ func (m stepsEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, Keys.Edit):
 			if len(m.steps) > 0 {
 				m.isEditMode = true
-				m.textInput = initializeTextInput(m.steps[m.focusIndex].Title, newStepPlaceholder, 60, goToStepsWithVal)
+				m.textInput = initializeTextInput(m.steps[m.focusIndex].Title, newStepPlaceholder, 60, 0, goToStepsWithVal)
 			}
 
 		case key.Matches(msg, Keys.Enter):

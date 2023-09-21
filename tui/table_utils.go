@@ -26,6 +26,10 @@ var stackKeys = keyMap{
 		key.WithKeys("x"),
 		key.WithHelp("'x'", "delete 🗑"),
 	),
+	Sync: key.NewBinding(
+		key.WithKeys("s"),
+		key.WithHelp("'s'", "sync"),
+	),
 }
 
 var taskKeys = keyMap{

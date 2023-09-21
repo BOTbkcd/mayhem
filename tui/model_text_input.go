@@ -25,7 +25,7 @@ var textInputKeys = keyMap{
 	),
 }
 
-func initializeTextInput(value string, placeholder string, charLimit int, responder func(interface{}) tea.Cmd) tea.Model {
+func initializeTextInput(value string, placeholder string, charLimit int, width int, responder func(interface{}) tea.Cmd) tea.Model {
 	t := textinput.New()
 	t.SetValue(value)
 
@@ -35,6 +35,8 @@ func initializeTextInput(value string, placeholder string, charLimit int, respon
 	t.PromptStyle = textInputStyle
 	t.TextStyle = textInputStyle
 	t.Placeholder = placeholder
+	t.Width = width
+	t.EchoCharacter = 'x'
 
 	m := textInput{
 		input:     t,

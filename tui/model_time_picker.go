@@ -9,7 +9,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// textinput.Model doesn't implement tea.Model interface
 type timePicker struct {
 	currTime         time.Time
 	focusIndex       int

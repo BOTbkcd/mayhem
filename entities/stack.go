@@ -19,16 +19,33 @@ func InitializeStacks() (Stack, error) {
 	return stack, result.Error
 }
 
-func FetchAllStacks() ([]Stack, error) {
+func FetchAllStacks() []Stack {
 	var stacks []Stack
-	result := DB.Model(&Stack{}).Preload("Tasks").Preload("Tasks.Steps").Find(&stacks)
+	DB.Model(&Stack{}).Preload("Tasks").Preload("Tasks.Steps").Find(&stacks)
 
 	if len(stacks) == 0 {
-		stack, err := InitializeStacks()
-		return []Stack{stack}, err
+		stack, _ := InitializeStacks()
+		return []Stack{stack}
 	}
 
-	return stacks, result.Error
+	return stacks
+}
+
+func FetchStackTitles() []string {
+	var stacks []Stack
+	DB.Model(&Stack{}).Find(&stacks)
+
+	var res []string
+	for _, stack := range stacks {
+		res = append(res, stack.Title)
+	}
+	return res
+}
+
+func FetchStackByTitle(title string) (Stack, error) {
+	var stack Stack
+	result := DB.Where(&Stack{Title: title}).First(&stack)
+	return stack, result.Error
 }
 
 func IncPendingCount(id uint) {

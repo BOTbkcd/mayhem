@@ -83,9 +83,25 @@ var (
 				Padding(0, 1).
 				MarginTop(1)
 
+	selectedButtonStyle = lipgloss.NewStyle().
+				Bold(true).
+				Padding(0, 3).
+				Margin(2).
+				Foreground(highlightedTextColor).
+				Background(highlightedBackgroundColor)
+
+	unselectedButtonStyle = selectedButtonStyle.Copy().
+				Foreground(whiteColor).
+				Background(unfocusedColor)
+
 	inputFormStyle = lipgloss.NewStyle().
 			BorderStyle(lipgloss.ThickBorder()).
 			BorderForeground(inputFormBorderColor).
+			Padding(0, 1)
+
+	inputFieldStyle = lipgloss.NewStyle().
+			BorderStyle(lipgloss.RoundedBorder()).
+			BorderForeground(whiteColor).
 			Padding(0, 1)
 
 	textInputStyle   = lipgloss.NewStyle().Foreground(inputFormColor)
