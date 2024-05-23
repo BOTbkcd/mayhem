@@ -88,6 +88,15 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.taskDetails.Focus()
 				m.navigationKeys = detailsNavigationKeys
 			}
+
+			m.updateViewDimensions(10)
+
+			return m, nil
+
+		case tea.WindowSizeMsg:
+			screenWidth = msg.Width
+			screenHeight = msg.Height
+			m.updateViewDimensions(14)
 			return m, nil
 
 		default:
@@ -100,6 +109,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	if m.showCustomInput {
+		switch msg := msg.(type) {
+		case tea.WindowSizeMsg:
+			screenWidth = msg.Width
+			screenHeight = msg.Height
+			m.updateViewDimensions(14)
+			return m, nil
+		}
+
 		switch m.customInputType {
 		//Transfer control to delete confirmation model
 		case "delete":
@@ -418,6 +435,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.taskTable.Blur()
 			m.taskDetails.Blur()
 
+			m.updateViewDimensions(14)
+
 			m.showInput = true
 
 			return m, nil
@@ -437,6 +456,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.stackTable.Blur()
 				m.taskTable.Blur()
 				m.taskDetails.Blur()
+
+				m.updateViewDimensions(14)
 
 				m.showInput = true
 
@@ -468,6 +489,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.stackTable.Blur()
 			m.taskTable.Blur()
 			m.taskDetails.Blur()
+
+			m.updateViewDimensions(14)
 
 			m.showInput = true
 
@@ -577,17 +600,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		screenWidth = msg.Width
 		screenHeight = msg.Height
-		if screenHeight < 35 {
-			tableViewHeight = 25 - min(35-screenHeight, 10)
-		} else {
-			tableViewHeight = 25
-		}
-
-		//Details box viewport dimensions & section width are set at the time of box creation,
-		//after that they have to be manually adjusted
-		m.taskDetails.viewport.Width = getDetailsBoxWidth()
-		m.taskDetails.viewport.Height = getDetailsBoxHeight()
-		m.updateDetailsBoxData(true)
+		m.updateViewDimensions(10)
 
 		if m.firstRender {
 			//updateSelectionData() is called here instead of being called from Init()
@@ -666,12 +679,12 @@ func (m *model) View() string {
 	}
 }
 
-func (m model) stackView() string {
+func (m *model) stackView() string {
 	m.stackTable.SetHeight(tableViewHeight)
 	return lipgloss.JoinVertical(lipgloss.Center, m.stackTable.View(), m.stackFooter())
 }
 
-func (m model) stackFooter() string {
+func (m *model) stackFooter() string {
 	stackFooterStyle := footerContainerStyle.Copy().
 		Width(stackTableWidth)
 
@@ -680,12 +693,12 @@ func (m model) stackFooter() string {
 	return stackFooterStyle.Render(info)
 }
 
-func (m model) taskView() string {
+func (m *model) taskView() string {
 	m.taskTable.SetHeight(tableViewHeight)
 	return lipgloss.JoinVertical(lipgloss.Center, m.taskTable.View(), m.taskFooter())
 }
 
-func (m model) taskFooter() string {
+func (m *model) taskFooter() string {
 	taskFooterStyle := footerContainerStyle.Copy().
 		Width(taskTableWidth)
 
@@ -788,4 +801,14 @@ func (m *model) preserveState() {
 	if len(m.data[stackIndex].Tasks) > 0 {
 		m.prevState.taskID = m.data[stackIndex].Tasks[taskIndex].ID
 	}
+}
+
+func (m *model) updateViewDimensions(offset int) {
+	tableViewHeight = screenHeight - offset
+
+	//Details box viewport dimensions & section width are set at the time of box creation,
+	//after that they have to be manually adjusted
+	m.taskDetails.viewport.Width = getDetailsBoxWidth()
+	m.taskDetails.viewport.Height = getDetailsBoxHeight()
+	m.updateDetailsBoxData(true)
 }
