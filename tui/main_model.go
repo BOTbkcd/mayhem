@@ -71,9 +71,24 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.input = inputForm{}
 			m.showInput = false
 
-			if msg.value.(string) == "refresh" {
-				m.preserveState()
+			switch val := msg.value.(type) {
+			case string:
+				if val == "refresh" {
+					m.preserveState()
+					m.refreshData()
+				}
+			case uint:
+				// New task created: navigate to it after refresh
+				stackIndex := m.stackTable.Cursor()
+				m.prevState.retainState = true
+				m.prevState.stackID = m.data[stackIndex].ID
+				m.prevState.taskID = val
 				m.refreshData()
+				m.showTasks = true
+				m.stackTable.Blur()
+				m.taskTable.Focus()
+				m.help = initializeHelp(taskKeys)
+				m.navigationKeys = tableNavigationKeys
 			}
 
 			if m.preInputFocus == "stack" {

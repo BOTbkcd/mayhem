@@ -263,6 +263,7 @@ func (m inputForm) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				} else {
 					entities.IncPendingCount(task.StackID)
 				}
+				return m, goToMainWithVal(task.ID)
 			}
 		}
 
